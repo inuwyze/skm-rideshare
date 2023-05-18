@@ -12,10 +12,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AntDesign } from '@expo/vector-icons';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
+
 import { Provider, useSelector } from 'react-redux'
 import store from './store';
 import { createStackNavigator } from '@react-navigation/stack';
 import { LocationModal } from './views/LocationModal';
+import { TestTracks } from './views/TestTracks';
 const RootStack=createStackNavigator()
 const DrawerNav=createDrawerNavigator()
 
@@ -41,11 +43,14 @@ function DrawerScreen() {
       
     <DrawerNav.Screen name="Home" component={Home}></DrawerNav.Screen>
     <DrawerNav.Screen name="Settings" component={SettingsView}></DrawerNav.Screen>
+    <DrawerNav.Screen name="TestTracks" component={TestTracks}></DrawerNav.Screen>
       
     
     </DrawerNav.Navigator>
   );
+  
 }
+
 const  App=()=> {
 
   return (

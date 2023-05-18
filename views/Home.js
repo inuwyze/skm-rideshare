@@ -14,7 +14,7 @@ import { MapScreen } from '../components/map';
 import { TravelInput } from '../components/travelInput';
 import { PickupInput } from '../components/pickupInput';
 import { Icon } from 'react-native-elements';
-
+// import useGeolocation from '../features/useGeolocation';
 
 export const Home=({navigation})=>{
   const dispatch=useDispatch()
@@ -28,6 +28,7 @@ export const Home=({navigation})=>{
 
   
 
+  // useGeolocation()
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
       
