@@ -47,11 +47,7 @@ export const PickupInput=()=>{
                     borderRadius: 10,
                     paddingVertical: 6,
                     paddingHorizontal: 8,
-                    
-
-                    
                     color: store.getState().themes.accent2,
-                    
                     display:'flex',
                     flexDirection:'row',
                     alignItems:'center',

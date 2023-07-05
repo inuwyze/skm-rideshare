@@ -18,6 +18,7 @@ import store from './store';
 import { createStackNavigator } from '@react-navigation/stack';
 import { LocationModal } from './views/LocationModal';
 import { TestTracks } from './views/TestTracks';
+import SetLocationMap from './views/SetLocationMap';
 const RootStack=createStackNavigator()
 const DrawerNav=createDrawerNavigator()
 
@@ -44,6 +45,7 @@ function DrawerScreen() {
     <DrawerNav.Screen name="Home" component={Home}></DrawerNav.Screen>
     <DrawerNav.Screen name="Settings" component={SettingsView}></DrawerNav.Screen>
     <DrawerNav.Screen name="TestTracks" component={TestTracks}></DrawerNav.Screen>
+    <DrawerNav.Screen name="TestSet" component={SetLocationMap}></DrawerNav.Screen>
       
     
     </DrawerNav.Navigator>

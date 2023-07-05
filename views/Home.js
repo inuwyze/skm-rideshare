@@ -14,22 +14,31 @@ import { MapScreen } from '../components/map';
 import { TravelInput } from '../components/travelInput';
 import { PickupInput } from '../components/pickupInput';
 import { Icon } from 'react-native-elements';
-// import useGeolocation from '../features/useGeolocation';
+import useGeolocation from '../features/useGeolocation';
+// import useReverseGeolocation from '../features/reverseGeolocation';
+
 
 export const Home=({navigation})=>{
   const dispatch=useDispatch()
   const Tab=createStackNavigator()
   const keyboardStatus=useSelector((state)=>state.keyboardStatus.keyboardStatus)
   const a=useSelector((state)=>state.themes.bgColor)
+  const origin=useSelector((state)=>state.nav.origin)
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height+70 ;
   
   const [text, onChangeText] = React.useState('')
-
+  const currentLocation = useGeolocation()
+ 
+  console.log(currentLocation)
   
+  
+  useEffect(()=>{(async()=>{
+    // console.log('oola',await useReverseGeolocation({"latitude": 27.3342, "longitude": 88.6120}))
+  })()},[])
 
-  // useGeolocation()
-  useEffect(() => {
+  useEffect( () => {
+    // console.log(await useReverseGeolocation({"latitude": 27.3389, "longitude": 88.6065}))
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
       
      dispatch(keyboardStatusToggle())
@@ -58,24 +67,11 @@ export const Home=({navigation})=>{
         
       }
     }>
-      <MapScreen/>
-        <View
-        style={{
-          position:'absolute',
-          top: '50%',  /* position the top  edge of the element at the middle of the parent */
-          left: '50%', /* position the left edge of the element at the middle of the parent */
-          marginTop: -50,
-          marginLeft: -50,
-          width: 100,
-          height: 100,
-        }}>
-          <Icon
-          name='map-pin'
-          color={'black'}
-          type='font-awesome-5'
-          size={30}
-          />
-        </View>
+      {
+        currentLocation?
+        <MapScreen currentLocation={currentLocation}/>:<View/>
+      }
+        
       <PickupInput />
     </View>
 

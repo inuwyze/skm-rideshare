@@ -1,16 +1,16 @@
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
-import { Button, FlatList,StatusBar, Pressable, StyleSheet, TouchableOpacity } from "react-native";
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { Button, FlatList, Pressable, StyleSheet } from "react-native";
 
 import { Text } from "react-native";
 import { View } from "react-native";
 import { Icon } from "react-native-elements";
-import { TextInput } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
-import CustomTextInput from "../components/cTextInput";
+
 import { useEffect } from "react";
 import { useRef } from "react";
+import useDebounce from "../util/debounce";
+import LocationSearch from "../components/locationSearch";
 
 const DATA = [
   {
@@ -37,10 +37,11 @@ const Item = ({item, onPress, }) => (
     <Text style={[styles.title,]}>{item.title}</Text>
   </Pressable>
 );
-const SearchItem = ({item, onPress, }) => (
+const SearchItem = ({item, onPress }) => (
   <Pressable onPress={onPress} style={[styles.item, ]}>
     
-    <Text style={[styles.title,]}>{item.description}</Text>
+    <Text style={[styles.mainTxt,]}>{item.structured_formatting.main_text}</Text>
+    <Text style={[styles.scndryTxt]}>{item.structured_formatting.secondary_text}</Text>
   </Pressable>
 );
 
@@ -64,35 +65,14 @@ export const LocationModal=()=>{
   const [selectedId, setSelectedId] = useState();
 
   const [searchResults, setSearchResults] = useState([]);
-  const handleSearch = async () => {
-    setSearchResults([])
-    try {
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${pickupLocation}&components=country:IN&components=administrative_area:SK&key=AIzaSyA_yoHJ6hSP8JZozCY71JeJE2Q_KAladyE`
-      );
-      const data = await response.json();
-      const { predictions } = data;
-      console.log(predictions)
-
-      // Filter results for Sikkim
-      const sikkimResults = predictions.filter((result) =>
-        result.description.toLowerCase().includes('sikkim')
-      );
-      console.log(sikkimResults)
-      setSearchResults(sikkimResults);
-    } catch (error) {
-      console.log('Autocomplete Error:', error);
-      // Handle the error
-    }
-  };
-  const renderSearchItem = ({item}) => {
-    
-    
   
+  
+  const renderSearchItem = ({item}) => {
     return (
       <SearchItem
+        key={item.place_id}
         item={item}
-        onPress={() => setSelectedId(item.id)}
+        onPress={() => {setSelectedId(item.place_id);setPickupLocation(item.structured_formatting.main_text)}}
       />
     );
   };
@@ -109,20 +89,21 @@ export const LocationModal=()=>{
   };
   
     return (
-        <SafeAreaView style={{ flex: 1, }}>
+        <SafeAreaView style={{ flex: 1  }}>
           
           <View
           style={{
+            
             display:'flex',
+            
             flexDirection:'row',
             alignItems:'center',
-            // borderWidth:1,
             paddingHorizontal:10
           }}>
-            <View
+            <Pressable
+            onPress={()=>{nav.goBack()}}
             style={{
-              elevation:10,
-              
+              elevation:10,      
               borderRadius:10,
             }}>
             <Icon
@@ -135,7 +116,7 @@ export const LocationModal=()=>{
               }}
           size={24}
           />
-          </View>
+          </Pressable>
           <Text
           style={{
             marginLeft:30,
@@ -150,29 +131,21 @@ export const LocationModal=()=>{
             margin:10,
             borderRadius:10,
             elevation:10,
-            // borderWidth:2,
             backgroundColor:'white'
           }}>
             
              
-          <CustomTextInput
+          <LocationSearch
                 ref={inputRef}
                 value={pickupLocation}
                 dotColor='green'
-                onChangeText={txt=>{setPickupLocation(txt);handleSearch()}}
+                onChangeText={txt=>{setPickupLocation(txt)}}
                 placeholder='enter pickup location'
                 setOnpickup={()=>setOnpickup(true)}
+                setSearchResults={setSearchResults}
                 clearInput={clearPickup}
                 />
-          <CustomTextInput
-                
-                value={dropLocation}
-                dotColor='red'
-                setOnpickup={()=>setOnpickup(false)}
-                onChangeText={txt=>setDropLocation(txt)}
-                placeholder='enter drop location'
-                clearInput={clearDrop}
-                />
+        
 
           
           <View>
@@ -180,7 +153,8 @@ export const LocationModal=()=>{
           
           </View>
           </View>
-          <View>
+          <View
+          style={{flex:1}}>
           {searchResults.length?
           <View>
             <FlatList
@@ -193,8 +167,8 @@ export const LocationModal=()=>{
             />
           </View>:
           <View>
-          <Text style={styles.favorites}>no results</Text>
-          {/* <FlatList
+          <Text style={styles.favorites}>favorites</Text>
+          <FlatList
             
             style={styles.favoritesContainer}
             data={DATA}
@@ -216,10 +190,26 @@ export const LocationModal=()=>{
           style={{
             flex:1
           }}>
+
           </View>
-          <Button onPress={() => nav.goBack()} title="setLocation" /> */}
             </View>}
           </View>
+          <Pressable 
+          style={{
+            padding:10,
+            backgroundColor:'lightblue',
+            display:'flex',
+            alignItems:'center'
+          }}
+          onPress={() => nav.goBack()}>
+          <Text
+          style={{
+            fontSize:16,
+            fontWeight:'600'
+            }}>
+            Set Location
+          </Text>
+          </Pressable>
         </SafeAreaView>
       );
 }
@@ -229,9 +219,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   item: {
-    // display:'flex',
-    flexDirection:'row',
-    alignItems:'center',
+    display:'flex',
+
+    flexDirection:'column',
+    // alignItems:'center',
     padding: 14,
     // marginVertical: 8,
     // marginHorizontal: 16,
@@ -240,6 +231,15 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
+    marginLeft:20,
+  },
+  mainTxt: {
+    fontSize: 18,
+    marginLeft:20,
+  },
+  scndryTxt: {
+    color:'grey',
+    fontSize: 12,
     marginLeft:20,
   },
   input:{

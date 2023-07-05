@@ -1,7 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
-  origin:null,
+  origin:{
+    name:'sikkim',
+    coords:{
+      latitude: 27.338936,
+      longitude: 88.606506,
+    },
+  },
   destination:null,
   travelTimeInformation:null,
 }
@@ -31,4 +37,4 @@ export const selectDestination=(state)=>state.nav.destination;
 export const selectTravelTimeInformation=(state)=>state.nav.travelTimeInformation;
 
 
-export default themes.reducer
+export default nav.reducer
